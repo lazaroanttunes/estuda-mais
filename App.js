@@ -18,6 +18,7 @@ import ResultsScreen from './src/screens/ResultsScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import AccountScreen from './src/screens/AccountScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -127,6 +128,14 @@ function AppStack() {
             options={{ 
               headerShown: false,
               gestureEnabled: false
+            }}
+          />
+          <Stack.Screen 
+            name="Account" 
+            component={AccountScreen}
+            options={{ 
+              title: 'Minha Conta',
+              headerBackTitle: 'Início'
             }}
           />
           <Stack.Screen 
