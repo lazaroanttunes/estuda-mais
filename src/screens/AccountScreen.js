@@ -12,10 +12,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getData, storeData } from '../services/storageService';
-import { supabase } from '../services/supabaseClient';
+import { supabase } from '../../supabaseClient';
 
 const AccountScreen = ({ navigation }) => {
-  const { user, signOut, checkCurrentUser } = useAuth(); // ADICIONADO checkCurrentUser
+  const { user, signOut, checkCurrentUser } = useAuth();
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || '');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,6 @@ const AccountScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      // Atualizar o nome no user_metadata do Supabase
       const { data, error } = await supabase.auth.updateUser({
         data: { full_name: fullName.trim() }
       });
@@ -37,9 +36,7 @@ const AccountScreen = ({ navigation }) => {
         throw error;
       }
 
-      // ATUALIZAR O USUÁRIO NO CONTEXTO
       await checkCurrentUser();
-
       Alert.alert('Sucesso', 'Nome atualizado com sucesso!');
       setIsEditing(false);
       
@@ -51,20 +48,23 @@ const AccountScreen = ({ navigation }) => {
     }
   };
 
-  const handleClearHistory = () => {
+  const handleClearHistory = async () => {
     Alert.alert(
       'Limpar Histórico',
       'Tem certeza que deseja limpar todo o seu histórico de estudos? Esta ação não pode ser desfeita.',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Limpar',
+          text: 'Limpar Tudo',
           style: 'destructive',
           onPress: async () => {
             try {
+              console.log('🔄 Tentando limpar histórico...');
               await storeData('studyHistory', []);
+              console.log('✅ Histórico limpo com sucesso');
               Alert.alert('Sucesso', 'Histórico limpo com sucesso!');
             } catch (error) {
+              console.error('❌ Erro ao limpar histórico:', error);
               Alert.alert('Erro', 'Não foi possível limpar o histórico.');
             }
           }
@@ -73,9 +73,9 @@ const AccountScreen = ({ navigation }) => {
     );
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert(
-      'Sair',
+      'Sair da Conta',
       'Tem certeza que deseja sair da sua conta?',
       [
         { text: 'Cancelar', style: 'cancel' },
@@ -83,9 +83,22 @@ const AccountScreen = ({ navigation }) => {
           text: 'Sair',
           style: 'destructive',
           onPress: async () => {
-            const { error } = await signOut();
-            if (error) {
-              Alert.alert('Erro', 'Não foi possível fazer logout.');
+            try {
+              console.log('🚪 Tentando fazer logout...');
+              const { error } = await signOut();
+              
+              if (error) {
+                console.error('❌ Erro no logout:', error);
+                Alert.alert('Erro', 'Não foi possível fazer logout.');
+                return;
+              }
+              
+              console.log('✅ Logout realizado com sucesso');
+              // O AuthContext deve redirecionar automaticamente para Login
+              
+            } catch (error) {
+              console.error('💥 Erro capturado no logout:', error);
+              Alert.alert('Erro', 'Ocorreu um erro inesperado ao tentar sair.');
             }
           }
         }
@@ -194,7 +207,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8fafc',
   },
-  header: {
+   header: {
     padding: 32,
     backgroundColor: 'white',
     marginBottom: 16,
