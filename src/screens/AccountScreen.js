@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getData, storeData } from '../services/storageService';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../src/services/supabaseClient';
 
 const AccountScreen = ({ navigation }) => {
   const { user, signOut, checkCurrentUser } = useAuth();
